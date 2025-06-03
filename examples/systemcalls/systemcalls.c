@@ -1,4 +1,7 @@
 #include "systemcalls.h"
+#include <stdlib.h>
+#include <bits/fcntl-linux.h>
+#include <unistd.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -17,6 +20,9 @@ bool do_system(const char *cmd)
  *   or false() if it returned a failure
 */
 
+    if(cmd == NULL) return false;
+    int result = system(cmd);
+    if(result != 0)return false;
     return true;
 }
 
@@ -58,9 +64,13 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-
     va_end(args);
 
+    if(fork()==0){
+        execv(command[0], command);
+        exit(1);
+    }
+    wait(NULL);
     return true;
 }
 
@@ -94,6 +104,17 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 */
 
     va_end(args);
-
+    if(fork()==0){
+        int fd = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if(fd < 0) {
+            perror("open");
+            exit(1);
+        }
+        dup2(fd, STDOUT_FILENO);
+        close(fd);
+        execv(command[0], command);
+        exit(1);
+    }
+    wait(NULL);
     return true;
 }
