@@ -66,13 +66,16 @@ bool do_exec(int count, ...)
  *
 */
     va_end(args);
-
+    int status;
     if(fork()==0){
         execv(command[0], command);
         exit(1);
     }
-    wait(NULL);
-    return true;
+    wait(&status);
+    if(WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        return true;
+    else
+        return false;
 }
 
 /**
@@ -105,6 +108,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 */
 
     va_end(args);
+    int status;
     if(fork()==0){
         int fd = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if(fd < 0) {
@@ -116,6 +120,9 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
         execv(command[0], command);
         exit(1);
     }
-    wait(NULL);
-    return true;
+    wait(&status);
+    if(WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        return true;
+    else
+        return false;
 }
