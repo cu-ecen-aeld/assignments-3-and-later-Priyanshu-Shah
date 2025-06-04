@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/usr/bin:$PATH
 # Script outline to install and build kernel.
 # Author: Siddhant Jajoo.
 

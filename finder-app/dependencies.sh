@@ -1,4 +1,2 @@
-#!/bin/bash
-sudo pacman -S libssl-dev
-sudo pacman -S u-boot-tools
+#!/bin/sh
 sudo pacman -S qemu
