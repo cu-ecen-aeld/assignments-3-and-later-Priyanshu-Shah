@@ -14,6 +14,10 @@ FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
 CROSS_COMPILE=aarch64-linux-gnu-
 
+echo "PATH is: $PATH"
+which aarch64-linux-gnu-gcc || echo "aarch64-linux-gnu-gcc not found"
+aarch64-linux-gnu-gcc --version || echo "aarch64-linux-gnu-gcc not working"
+
 if [ $# -lt 1 ]
 then
 	echo "Using default directory ${OUTDIR} for output"
