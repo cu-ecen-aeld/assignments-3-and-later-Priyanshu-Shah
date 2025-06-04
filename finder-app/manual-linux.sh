@@ -16,7 +16,12 @@ CROSS_COMPILE=aarch64-linux-gnu-
 
 echo "PATH is: $PATH"
 which aarch64-linux-gnu-gcc || echo "aarch64-linux-gnu-gcc not found"
-aarch64-linux-gnu-gcc --version || echo "aarch64-linux-gnu-gcc not working"
+
+echo "PATH is: $PATH"
+ls -l /usr/bin/aarch64-linux-gnu-gcc
+whoami
+id
+aarch64-linux-gnu-gcc -v || echo "aarch64-linux-gnu-gcc not working"
 
 if [ $# -lt 1 ]
 then
