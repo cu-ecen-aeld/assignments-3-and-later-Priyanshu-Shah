@@ -9,6 +9,8 @@
 #include <syslog.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <stdbool.h>
+#include <sys/stat.h>
 
 #define PORT 9000
 #define BUFFER_SIZE 1024
@@ -70,15 +72,78 @@ void handle_client(int client_socket) {
     close(client_socket);
 }
 
-int main() {
+// Function to daemonize the process
+void daemonize() {
+    // First fork
+    pid_t pid = fork();
+    
+    // Error check
+    if (pid < 0) {
+        perror("Failed to fork");
+        exit(1);
+    }
+    
+    // Parent exits
+    if (pid > 0) {
+        exit(0);
+    }
+    
+    // Child continues
+    
+    // Create new session and process group
+    if (setsid() < 0) {
+        perror("Failed to create new session");
+        exit(1);
+    }
+    
+    // Set file permissions
+    umask(0);
+    
+    // Change directory to root
+    if (chdir("/") < 0) {
+        perror("Failed to change directory");
+        exit(1);
+    }
+    
+    // Close standard file descriptors
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+    
+    // Redirect standard file descriptors to /dev/null
+    int fd = open("/dev/null", O_RDWR);
+    dup2(fd, STDIN_FILENO);
+    dup2(fd, STDOUT_FILENO);
+    dup2(fd, STDERR_FILENO);
+    if (fd > 2) {
+        close(fd);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    bool daemon_mode = false;
+    
+    // Check if the daemon flag is provided
+    if (argc > 1 && strcmp(argv[1], "-d") == 0) {
+        daemon_mode = true;
+    }
+    
     openlog("aesdsocket", LOG_PID | LOG_CONS, LOG_USER);
     syslog(LOG_INFO, "Starting AESD Socket Server");
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
+    // Create socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         perror("Failed to create socket");
+        return -1;
+    }
+    
+    // Set socket options to allow port reuse
+    int yes = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+        perror("Failed to set socket options");
         return -1;
     }
 
@@ -88,9 +153,16 @@ int main() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
+    // Bind socket to port 9000
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Failed to bind socket");
         return -1;
+    }
+    
+    // Run as daemon if flag is provided
+    if (daemon_mode) {
+        syslog(LOG_INFO, "Running as daemon");
+        daemonize();
     }
 
     if (listen(server_socket, 5) < 0) {
