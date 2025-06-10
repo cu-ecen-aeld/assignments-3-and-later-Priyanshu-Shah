@@ -53,17 +53,43 @@ void handle_client(int client_socket) {
     }
 
     ssize_t bytes_received;
+    bool packet_complete = false;
+    
+    // Process incoming data until connection closed or error
     while ((bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+        // Write received data to file
+        write(fd, buffer, bytes_received);
+        
+        // Check if this packet contains a newline
         buffer[bytes_received] = '\0';
-        char *newline = strchr(buffer, '\n');
-        if (newline) {
-            *newline = '\0'; // Terminate the string at the newline
-            write(fd, buffer, strlen(buffer));
-            write(fd, "\n", 1); // Append newline to the file
-            lseek(fd, 0, SEEK_SET); // Reset file pointer to the beginning
-            ssize_t bytes_read = read(fd, buffer, BUFFER_SIZE - 1);
-            buffer[bytes_read] = '\0'; // Null-terminate the read data
-            send(client_socket, buffer, bytes_read, 0);
+        if (strchr(buffer, '\n') != NULL) {
+            packet_complete = true;
+        }
+        
+        // If we've completed a packet, send the entire file back
+        if (packet_complete) {
+            // Get file size
+            off_t file_size = lseek(fd, 0, SEEK_END);
+            lseek(fd, 0, SEEK_SET); // Reset to beginning for reading
+            
+            // Use a dynamic buffer for large files
+            char *read_buffer = malloc(file_size + 1);
+            if (read_buffer == NULL) {
+                perror("Failed to allocate memory");
+                break;
+            }
+            
+            // Read the entire file at once
+            ssize_t bytes_read = read(fd, read_buffer, file_size);
+            if (bytes_read > 0) {
+                // Send the entire file contents
+                if (send(client_socket, read_buffer, bytes_read, 0) < 0) {
+                    perror("Error sending data");
+                }
+            }
+            
+            free(read_buffer);
+            packet_complete = false;
         }
     }
 
