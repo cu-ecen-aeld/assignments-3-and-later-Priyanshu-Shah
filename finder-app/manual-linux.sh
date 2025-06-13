@@ -1,4 +1,17 @@
 #!/bin/bash
+if ! command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
+    echo "Installing cross-compiler..."
+    sudo pacman -Syu --noconfirm aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc aarch64-linux-gnu-binutils
+fi
+
+echo "=== DEBUG INFO ==="
+echo "USER: $(whoami)"
+echo "HOME: $HOME"
+echo "PATH: $PATH"
+echo "Current directory: $(pwd)"
+ls -la /usr/bin/aarch64* || echo "No aarch64 binaries found"
+echo "==================="
+
 export PATH=/usr/bin:$PATH
 # Script outline to install and build kernel.
 # Author: Siddhant Jajoo.
