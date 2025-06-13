@@ -95,6 +95,8 @@ fi
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} CONFIG_PREFIX=${OUTDIR}/rootfs install
 ln -sf busybox ${OUTDIR}/rootfs/bin/sh
+ln -sf /bin/busybox ${OUTDIR}/rootfs/init
+
 
 echo "Library dependencies"
 # TODO: Add library dependencies to rootfs
