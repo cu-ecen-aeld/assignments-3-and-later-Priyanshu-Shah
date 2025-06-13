@@ -1,7 +1,16 @@
 #!/bin/bash
-if ! command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
-    echo "Installing cross-compiler..."
-    sudo pacman -Syu --noconfirm aarch64-linux-gnu-gcc aarch64-linux-gnu-glibc aarch64-linux-gnu-binutils
+if ! command -v aarch64-none-linux-gnu-gcc >/dev/null 2>&1 && ! command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
+    echo "Cross-compiler not found. Please install aarch64 cross-compilation tools."
+    echo "On Ubuntu/Debian: sudo apt-get install gcc-aarch64-linux-gnu"
+    echo "On RHEL/CentOS: sudo yum install gcc-aarch64-linux-gnu"
+    echo "On Arch: sudo pacman -S aarch64-linux-gnu-gcc"
+    exit 1
+fi
+
+if command -v aarch64-none-linux-gnu-gcc >/dev/null 2>&1; then
+    CROSS_COMPILE=aarch64-none-linux-gnu-
+elif command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
+    CROSS_COMPILE=aarch64-linux-gnu-
 fi
 
 echo "=== DEBUG INFO ==="
@@ -9,10 +18,9 @@ echo "USER: $(whoami)"
 echo "HOME: $HOME"
 echo "PATH: $PATH"
 echo "Current directory: $(pwd)"
-ls -la /usr/bin/aarch64* || echo "No aarch64 binaries found"
+echo "Cross-compiler: ${CROSS_COMPILE}gcc"
 echo "==================="
 
-export PATH=/usr/bin:$PATH
 # Script outline to install and build kernel.
 # Author: Siddhant Jajoo.
 
@@ -26,6 +34,7 @@ BUSYBOX_VERSION=1_35_0
 FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
 CROSS_COMPILE=aarch64-linux-gnu-
+BUS// filepath: /home/Poppie/Desktop/Code/assignment-3-Priyanshu-Shah-p2/finder-app/manual-linux.sh
 
 echo "PATH is: $PATH"
 which aarch64-linux-gnu-gcc || echo "aarch64-linux-gnu-gcc not found"
