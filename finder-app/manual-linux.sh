@@ -9,8 +9,10 @@ fi
 
 if command -v aarch64-none-linux-gnu-gcc >/dev/null 2>&1; then
     CROSS_COMPILE=aarch64-none-linux-gnu-
+    echo "Using aarch64-none-linux-gnu-gcc as cross-compiler"
 elif command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
     CROSS_COMPILE=aarch64-linux-gnu-
+    echo "Using aarch64-linux-gnu-gcc as cross-compiler"
 fi
 
 echo "=== DEBUG INFO ==="
