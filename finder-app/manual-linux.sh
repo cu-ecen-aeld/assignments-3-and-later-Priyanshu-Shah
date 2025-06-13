@@ -1,12 +1,4 @@
 #!/bin/bash
-if ! command -v aarch64-none-linux-gnu-gcc >/dev/null 2>&1 && ! command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
-    echo "Cross-compiler not found. Please install aarch64 cross-compilation tools."
-    echo "On Ubuntu/Debian: sudo apt-get install gcc-aarch64-linux-gnu"
-    echo "On RHEL/CentOS: sudo yum install gcc-aarch64-linux-gnu"
-    echo "On Arch: sudo pacman -S aarch64-linux-gnu-gcc"
-    exit 1
-fi
-
 if command -v aarch64-none-linux-gnu-gcc >/dev/null 2>&1; then
     CROSS_COMPILE=aarch64-none-linux-gnu-
     echo "Using aarch64-none-linux-gnu-gcc as cross-compiler"
@@ -14,14 +6,6 @@ elif command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
     CROSS_COMPILE=aarch64-linux-gnu-
     echo "Using aarch64-linux-gnu-gcc as cross-compiler"
 fi
-
-echo "=== DEBUG INFO ==="
-echo "USER: $(whoami)"
-echo "HOME: $HOME"
-echo "PATH: $PATH"
-echo "Current directory: $(pwd)"
-echo "Cross-compiler: ${CROSS_COMPILE}gcc"
-echo "==================="
 
 # Script outline to install and build kernel.
 # Author: Siddhant Jajoo.
@@ -35,16 +19,16 @@ KERNEL_VERSION=v5.15.163
 BUSYBOX_VERSION=1_35_0
 FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
-CROSS_COMPILE=aarch64-linux-gnu-
 
+echo "=== DEBUG INFO ==="
 echo "PATH is: $PATH"
-which aarch64-linux-gnu-gcc || echo "aarch64-linux-gnu-gcc not found"
-
+which ${CROSS_COMPILE}gcc || echo "${CROSS_COMPILE}gcc not found"
 echo "PATH is: $PATH"
-ls -l /usr/bin/aarch64-linux-gnu-gcc
+ls -l $(command -v ${CROSS_COMPILE}gcc || echo "/dev/null")
 whoami
 id
-aarch64-linux-gnu-gcc -v || echo "aarch64-linux-gnu-gcc not working"
+${CROSS_COMPILE}gcc -v || echo "${CROSS_COMPILE}gcc not working"
+echo "==================="
 
 if [ $# -lt 1 ]
 then
