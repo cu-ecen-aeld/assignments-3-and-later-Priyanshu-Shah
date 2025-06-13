@@ -34,7 +34,6 @@ BUSYBOX_VERSION=1_35_0
 FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
 CROSS_COMPILE=aarch64-linux-gnu-
-BUS// filepath: /home/Poppie/Desktop/Code/assignment-3-Priyanshu-Shah-p2/finder-app/manual-linux.sh
 
 echo "PATH is: $PATH"
 which aarch64-linux-gnu-gcc || echo "aarch64-linux-gnu-gcc not found"
